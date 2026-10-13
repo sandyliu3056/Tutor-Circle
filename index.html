@@ -1,0 +1,716 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>家教圈</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Lexend:wght@400;500;600;700&family=Noto+Sans+TC:wght@400;500;700;900&family=LXGW+WenKai+TC:wght@400;700&family=Kalam:wght@400;700&family=JetBrains+Mono:wght@500;700&display=swap">
+<style>
+body{margin:0}
+[hidden]{display:none!important}
+
+/* Layout: navy title band → blue tab strip whose active tab opens into one bordered sheet. Inside each page: framed tool row (fields + gold action) → grey hint lines → bold section label → framed box with a gold segmented toggle in its corner. */
+:root{
+  --brand:#1E3A63; --brand-2:#2E66B5; --title:#F5C451; --gold:#F2B33D; --gold-ink:#2B1D02; --gold-line:#E2A93A;
+  --bg:#F4F7FB; --panel:#FFFFFF; --sunk:#F3F6FA; --line:#CDD7E6;
+  --ink:#14233B; --ink-2:#3C4C66; --ink-3:#5F6D83;
+  --frame:var(--brand); --tab:color-mix(in srgb,var(--brand-2) 28%,#FFFFFF); --tab-ink:var(--brand);
+  --ok:#3AA864; --ok-soft:#DFF3E7; --ok-ink:#17643A;
+  --warn-soft:#FDEFD3; --warn-ink:#7A4E05;
+  --info-soft:#E1EAF7; --info-ink:#1E3A63;
+  --mute-soft:#E8ECF2; --mute-ink:#4F5C70;
+  --err:#B3392A;
+  --f-title:"Fredoka","Noto Sans TC",sans-serif;
+  --f-ui:"Lexend","Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0D1420; --panel:#141E2E; --sunk:#1A2639; --line:#2B3A52;
+  --ink:#E4EAF3; --ink-2:#B4C0D2; --ink-3:#919EB3;
+  --frame:color-mix(in srgb,var(--brand-2) 65%,#FFFFFF 15%); --tab:color-mix(in srgb,var(--brand-2) 40%,#0D1420); --tab-ink:#DCE6F5;
+  --ok-soft:#163A26; --ok-ink:#8EDBAA; --warn-soft:#3A2C0E; --warn-ink:#F3CD82;
+  --info-soft:#1C2E4C; --info-ink:#BCD0EF; --mute-soft:#1F2A3B; --mute-ink:#A9B4C6; --err:#F08A78;
+  color-scheme:dark;
+}}
+:root[data-theme="dark"]{
+  --bg:#0D1420; --panel:#141E2E; --sunk:#1A2639; --line:#2B3A52;
+  --ink:#E4EAF3; --ink-2:#B4C0D2; --ink-3:#919EB3;
+  --frame:color-mix(in srgb,var(--brand-2) 65%,#FFFFFF 15%); --tab:color-mix(in srgb,var(--brand-2) 40%,#0D1420); --tab-ink:#DCE6F5;
+  --ok-soft:#163A26; --ok-ink:#8EDBAA; --warn-soft:#3A2C0E; --warn-ink:#F3CD82;
+  --info-soft:#1C2E4C; --info-ink:#BCD0EF; --mute-soft:#1F2A3B; --mute-ink:#A9B4C6; --err:#F08A78;
+  color-scheme:dark;
+}
+:root[data-brand="green"]{--brand:#1F4A3A;--brand-2:#2F7A5C}
+:root[data-brand="wine"]{--brand:#55203A;--brand-2:#8E3858}
+:root[data-brand="slate"]{--brand:#262A31;--brand-2:#4E5765}
+:root.hand{--f-ui:"Kalam","LXGW WenKai TC","Noto Sans TC",sans-serif}
+
+*{box-sizing:border-box}
+html{font-size:15px}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-ui);font-size:1rem;line-height:1.55;-webkit-font-smoothing:antialiased}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+h1,h2,h3{margin:0;text-wrap:balance}
+.mono{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+.muted{color:var(--ink-3)}
+
+/* ── title band ── */
+.band{background:var(--brand);color:#fff;padding:10px 14px 12px}
+.band-row{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px}
+.title{display:flex;flex-direction:column;min-width:0;margin-right:auto}
+.title h1{font-family:var(--f-title);font-weight:600;font-size:1.85rem;letter-spacing:.09em;color:var(--title);line-height:1.15;text-transform:uppercase}
+.title h1 span{font-family:"Noto Sans TC",sans-serif;font-weight:900;letter-spacing:.14em;margin-left:.45em;font-size:.8em}
+.title small{font-size:.78rem;color:#D3DEEE}
+.prefs{display:flex;flex-wrap:wrap;gap:6px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.prefs select{min-height:30px;padding:0 26px 0 10px;border-radius:6px;border:1.5px solid var(--gold-line);background:var(--brand);color:#fff;font-size:.84rem;cursor:pointer;color-scheme:dark}
+.clock{display:flex;flex-direction:column;align-items:flex-end;line-height:1.05;margin-left:6px}
+.clock b{font-family:var(--f-title);font-weight:600;font-size:1.65rem;color:var(--title);letter-spacing:.04em}
+.clock span{font-size:.72rem;color:#D3DEEE}
+.status{display:inline-flex;align-items:center;gap:7px;min-height:30px;padding:0 13px;border-radius:999px;border:1.5px solid #9DB3D6;color:#fff;font-size:.82rem;white-space:nowrap}
+.status i{width:8px;height:8px;border-radius:50%;background:#52C47D}
+.gloss{min-height:30px;padding:0 12px;border-radius:6px;border:1.5px solid var(--title);background:transparent;color:var(--title);font-weight:700;cursor:pointer}
+.gloss:hover{background:rgba(245,196,81,.14)}
+.guide-link{background:none;border:0;padding:4px 2px;color:var(--title);text-decoration:underline;text-underline-offset:3px;font-size:.84rem;cursor:pointer}
+
+/* ── tab strip joined to the sheet ── */
+.tabbar{background:var(--brand-2) linear-gradient(var(--frame),var(--frame)) no-repeat center bottom/calc(100% - 20px) 2px;padding:7px 10px 0;display:flex;gap:4px;overflow-x:auto;scrollbar-width:thin}
+.tab{display:inline-flex;align-items:center;gap:8px;min-height:40px;padding:0 15px;border:1.5px solid color-mix(in srgb,var(--brand) 55%,transparent);border-bottom:0;border-radius:9px 9px 0 0;background:var(--tab);color:var(--tab-ink);font-weight:600;font-size:.94rem;cursor:pointer;white-space:nowrap;margin-bottom:2px}
+.tab:hover{filter:brightness(1.05)}
+.tab[aria-selected="true"]{background:var(--panel);color:var(--ink);border:2px solid var(--frame);border-bottom:0;margin-bottom:0;padding-bottom:2px;min-height:44px}
+.tab .ic{flex:none;width:18px;height:18px;border-radius:4px;display:grid;place-items:center}
+.tab .cnt{min-width:20px;height:20px;padding:0 6px;border-radius:10px;background:var(--gold);color:var(--gold-ink);font-size:.72rem;font-weight:700;display:grid;place-items:center;font-family:var(--f-mono)}
+.tab .role{font-size:.68rem;font-weight:700;padding:1px 6px;border-radius:4px;background:var(--brand);color:var(--title)}
+.sheet{margin:0 10px 18px;background:var(--panel);border:2px solid var(--frame);border-top:0;border-radius:0 0 12px 12px;padding:16px;display:flex;flex-direction:column;gap:12px;min-height:60vh}
+
+/* ── page building blocks ── */
+.frame{border:2px solid var(--frame);border-radius:10px;padding:14px 16px;background:var(--panel)}
+.tool{display:flex;flex-wrap:wrap;align-items:flex-end;gap:12px 14px}
+.fld{display:flex;flex-direction:column;gap:4px;font-size:.84rem;font-weight:700;color:var(--ink)}
+.fld select,.fld input,.fld textarea{min-height:38px;padding:4px 10px;border:1.5px solid var(--gold-line);border-radius:6px;background:var(--panel);font-weight:400;font-size:.92rem;color:var(--ink)}
+.fld input[type="text"],.fld textarea{border-style:dashed;border-color:var(--frame)}
+.fld textarea{min-height:80px;resize:vertical}
+.fld select:focus,.fld input:focus,.fld textarea:focus{outline:none;box-shadow:0 0 0 3px color-mix(in srgb,var(--gold) 35%,transparent)}
+.check{display:flex;align-items:center;gap:6px;font-size:.88rem;min-height:38px}
+.check input{width:18px;height:18px;accent-color:var(--brand)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:38px;padding:0 16px;border-radius:7px;font-weight:700;cursor:pointer;white-space:nowrap}
+.btn-gold{background:var(--gold);color:var(--gold-ink);border:2px solid var(--brand)}
+.btn-gold:hover{filter:brightness(1.06)}
+.btn-line{background:var(--panel);color:var(--ink);border:2px solid var(--frame)}
+.btn-line:hover{background:var(--sunk)}
+.btn-sm{min-height:32px;padding:0 11px;font-size:.84rem}
+.hint{margin:-4px 2px 0;font-size:.82rem;color:var(--ink-3);line-height:1.6}
+.hint p{margin:0}
+.label{font-weight:700;font-size:1rem;margin:6px 2px -4px}
+.frame-top{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:10px;margin-bottom:12px}
+.frame-top h2{font-size:1rem;font-weight:700}
+.seg{display:inline-flex;border:1.5px solid var(--frame);border-radius:6px;overflow:hidden;margin-left:auto}
+.seg button{min-height:30px;padding:0 12px;border:0;background:var(--panel);font-size:.84rem;font-weight:600;cursor:pointer;color:var(--ink)}
+.seg button+button{border-left:1.5px solid var(--frame)}
+.seg button[aria-pressed="true"]{background:var(--gold);color:var(--gold-ink)}
+.pill{display:inline-block;padding:1px 9px;border-radius:999px;font-size:.76rem;font-weight:700;white-space:nowrap}
+.pill.ok{background:var(--ok-soft);color:var(--ok-ink)}
+.pill.warn{background:var(--warn-soft);color:var(--warn-ink)}
+.pill.info{background:var(--info-soft);color:var(--info-ink)}
+.pill.mute{background:var(--mute-soft);color:var(--mute-ink)}
+.empty{padding:26px;text-align:center;color:var(--ink-3);border:1.5px dashed var(--line);border-radius:9px}
+
+/* progress panel (like the startup panel) */
+.pg-head{display:flex;justify-content:space-between;align-items:baseline;font-weight:700}
+.pg-head span{font-family:var(--f-mono);font-size:.9rem}
+.bar{height:9px;border-radius:5px;background:var(--sunk);overflow:hidden;margin:8px 0 10px}
+.bar i{display:block;height:100%;border-radius:5px;background:repeating-linear-gradient(-45deg,var(--gold) 0 7px,color-mix(in srgb,var(--gold) 50%,#fff) 7px 14px);transition:width .3s}
+.bar i.full{background:var(--gold)}
+.checks{display:flex;flex-wrap:wrap;gap:8px 18px;font-size:.9rem}
+.checks span{display:inline-flex;align-items:center;gap:7px;color:var(--ink-3)}
+.checks span::before{content:"";flex:none;width:20px;height:20px;border-radius:50%;border:2px solid var(--line)}
+.checks span.done{color:var(--ink)}
+.checks span.done::before{border-color:var(--ok);background:var(--ok) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath d='M5.5 10.5l3 3 6-7' fill='none' stroke='white' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center/100% no-repeat}
+.checks span.now{color:var(--ink);font-weight:700}
+.checks span.now::before{border-color:var(--gold);border-top-color:transparent;animation:spin 1s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.sub-note{font-size:.82rem;color:var(--ink-3);margin-top:8px}
+
+/* tutors */
+.tutors{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:12px}
+.tutor{display:flex;flex-direction:column;gap:9px;border:1.5px solid var(--line);border-radius:9px;padding:13px}
+.tutor:hover{border-color:var(--frame)}
+.t-head{display:flex;gap:12px;align-items:center}
+.ava{flex:none;width:44px;height:44px;border-radius:50%;display:grid;place-items:center;font-weight:900;color:#fff;font-size:1.05rem;font-family:"Noto Sans TC",sans-serif}
+.t-head .n{flex:1;min-width:0}
+.t-head .n b{font-size:1.04rem}
+.t-head .n span{display:block;font-size:.8rem;color:var(--ink-3)}
+.rate{text-align:right;line-height:1.15}
+.rate b{font-family:var(--f-mono);font-size:1.2rem}
+.rate span{display:block;font-size:.72rem;color:var(--ink-3)}
+.t-intro{margin:0;font-size:.9rem;color:var(--ink-2)}
+.t-meta{display:flex;flex-wrap:wrap;gap:6px}
+.t-foot{display:flex;justify-content:space-between;align-items:center;gap:8px;border-top:1px dashed var(--line);padding-top:9px}
+.stars{color:#C98A12;font-size:.88rem;font-weight:700}
+:root[data-theme="dark"] .stars{color:#F2B33D}
+.table-wrap{overflow-x:auto;border:1.5px solid var(--line);border-radius:8px}
+table{width:100%;border-collapse:collapse;min-width:760px}
+th{text-align:left;font-size:.8rem;color:#fff;background:var(--brand);padding:8px 12px;font-weight:600;white-space:nowrap}
+td{padding:9px 12px;border-top:1px solid var(--line);font-size:.9rem;vertical-align:middle}
+td.num{font-family:var(--f-mono);font-weight:700;font-variant-numeric:tabular-nums}
+
+/* request */
+.req{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,.65fr);gap:12px;align-items:start}
+.q{font-size:1.25rem;font-weight:700;margin:0 0 12px}
+.opts{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px}
+.opt{min-height:46px;padding:8px 12px;border-radius:8px;border:1.5px solid var(--line);background:var(--panel);text-align:left;cursor:pointer;font-weight:500}
+.opt:hover{border-color:var(--frame)}
+.opt[aria-checked="true"],.opt[aria-pressed="true"]{border-color:var(--brand);background:var(--info-soft);color:var(--info-ink);font-weight:700;box-shadow:inset 0 0 0 1px var(--brand)}
+.err{color:var(--err);font-weight:600;font-size:.86rem;min-height:1.4em;margin-top:8px}
+.nav-row{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.paper{background:var(--sunk);border:1.5px dashed var(--frame);border-radius:9px;padding:13px 15px}
+.paper-head{display:flex;justify-content:space-between;font-family:var(--f-mono);font-size:.76rem;color:var(--ink-3);border-bottom:1px dashed var(--line);padding-bottom:7px;margin-bottom:9px}
+.paper dl{margin:0;display:grid;grid-template-columns:auto minmax(0,1fr);gap:6px 12px;font-size:.9rem}
+.paper dt{color:var(--ink-3);font-size:.8rem;padding-top:2px}
+.paper dd{margin:0;font-weight:600;overflow-wrap:anywhere}
+.paper dd.e{color:var(--line);font-weight:400}
+.match{display:flex;flex-wrap:wrap;gap:12px;align-items:center;padding:12px;border:1.5px solid var(--line);border-radius:9px}
+.match .t-head{flex:1 1 250px}
+.match .say{flex:2 1 250px;margin:0;font-size:.88rem;color:var(--ink-2);background:var(--sunk);border-radius:7px;padding:8px 11px}
+
+/* schedule */
+.sched-wrap{overflow-x:auto}
+.sched{display:grid;grid-template-columns:80px repeat(7,minmax(118px,1fr));min-width:940px;border:1.5px solid var(--line);border-radius:8px;overflow:hidden}
+.sched > div{border-right:1px solid var(--line);border-bottom:1px solid var(--line);min-height:80px;padding:6px}
+.sched .h{min-height:auto;background:var(--brand);color:#fff;font-weight:600;text-align:center;padding:7px 4px;font-size:.86rem}
+.sched .p{background:var(--sunk);font-size:.78rem;color:var(--ink-2);display:flex;flex-direction:column;justify-content:center}
+.sched .p b{color:var(--ink);font-size:.86rem}
+.lesson{display:flex;flex-direction:column;gap:1px;padding:6px 26px 6px 8px;border-radius:6px;background:var(--info-soft);color:var(--info-ink);font-size:.78rem;position:relative}
+.lesson.trial{background:var(--warn-soft);color:var(--warn-ink)}
+.lesson b{font-size:.84rem}
+.lesson button{position:absolute;top:2px;right:2px;width:24px;height:24px;border:0;background:transparent;color:inherit;cursor:pointer;border-radius:5px;font-size:1rem;line-height:1}
+.lesson button:hover{background:rgba(0,0,0,.08)}
+
+/* tutor backend */
+.kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:10px}
+.kpi{border:1.5px solid var(--line);border-radius:8px;padding:9px 13px;background:var(--sunk)}
+.kpi span{font-size:.78rem;color:var(--ink-3)}
+.kpi b{display:block;font-family:var(--f-mono);font-size:1.45rem}
+.split{display:grid;grid-template-columns:minmax(0,.85fr) minmax(0,1.4fr);gap:12px;align-items:start}
+.leadlist{display:flex;flex-direction:column;gap:8px}
+.lead{display:flex;flex-direction:column;gap:3px;text-align:left;padding:11px 13px;border-radius:8px;border:1.5px solid var(--line);background:var(--panel);cursor:pointer}
+.lead[aria-current="true"]{border-color:var(--frame);box-shadow:inset 0 0 0 1px var(--frame);background:var(--sunk)}
+.lead .t{display:flex;justify-content:space-between;gap:8px}
+.lead .m{font-size:.8rem;color:var(--ink-3)}
+.mine{align-self:flex-start;font-size:.7rem;font-weight:700;padding:0 6px;border-radius:4px;background:var(--gold);color:var(--gold-ink)}
+.answers{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:10px 0 12px}
+.answers div{background:var(--sunk);border-radius:7px;padding:7px 10px}
+.answers span{display:block;font-size:.74rem;color:var(--ink-3)}
+.answers b{overflow-wrap:anywhere}
+.notice{padding:11px 13px;border-radius:8px;display:flex;flex-direction:column;gap:2px}
+.notice.ok{background:var(--ok-soft);color:var(--ok-ink)}
+.notice.warn{background:var(--warn-soft);color:var(--warn-ink)}
+.notice.mute{background:var(--mute-soft);color:var(--mute-ink)}
+.switch{position:relative;width:52px;height:38px;border:0;background:transparent;padding:0;cursor:pointer}
+.switch span{position:absolute;left:3px;top:7px;width:44px;height:24px;border-radius:12px;background:var(--line);transition:background .15s}
+.switch span::after{content:"";position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:50%;background:#fff;transition:transform .18s;box-shadow:0 1px 2px rgba(0,0,0,.25)}
+.switch[aria-checked="true"] span{background:var(--ok)}
+.switch[aria-checked="true"] span::after{transform:translateX(20px)}
+.avail-wrap{overflow-x:auto}
+.avail{display:grid;grid-template-columns:96px repeat(7,minmax(64px,1fr));gap:4px;min-width:640px}
+.avail .h{text-align:center;font-weight:700;font-size:.84rem;padding:4px 0}
+.avail .p{font-size:.8rem;color:var(--ink-2);display:flex;align-items:center}
+.slot{min-height:38px;border-radius:6px;border:1.5px solid var(--line);background:var(--panel);cursor:pointer;font-size:.78rem;color:var(--ink-3)}
+.slot[aria-pressed="true"]{background:var(--ok-soft);border-color:var(--ok);color:var(--ok-ink);font-weight:700}
+
+/* dialog + toast */
+.overlay{position:fixed;inset:0;z-index:50;background:rgba(8,14,24,.55);display:grid;place-items:center;padding:16px}
+.dialog{width:min(560px,100%);max-height:88vh;overflow:auto;background:var(--panel);border:2px solid var(--frame);border-radius:10px}
+.dialog .dh{background:var(--brand);color:var(--title);padding:11px 15px;display:flex;justify-content:space-between;align-items:center;gap:10px}
+.dialog .dh h2{font-size:1.02rem}
+.dialog .dh button{width:34px;height:34px;border:0;border-radius:6px;background:transparent;color:#fff;font-size:1.3rem;cursor:pointer}
+.dialog .db{padding:15px;display:flex;flex-direction:column;gap:12px}
+.slots{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px}
+.glossary{margin:0}
+.glossary dt{font-weight:700;margin-top:8px}
+.glossary dd{margin:2px 0 0;color:var(--ink-2);font-size:.9rem}
+.guide{margin:0;padding-left:1.3em;display:flex;flex-direction:column;gap:6px;font-size:.92rem}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:60;background:var(--brand);color:#fff;border:1.5px solid var(--title);padding:10px 16px;border-radius:8px;font-weight:600;max-width:calc(100% - 32px)}
+
+@media (max-width:980px){
+  .req,.split{grid-template-columns:minmax(0,1fr)}
+  .kpis{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media (max-width:620px){
+  .title h1{font-size:1.4rem}
+  .clock{align-items:flex-start;margin-left:0}
+  .answers{grid-template-columns:minmax(0,1fr)}
+  .sheet{margin-inline:6px;padding:12px}
+  .tool .fld{flex:1 1 140px}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+
+</head>
+<body>
+<style>
+:root[lang="zh-Hant"] .title h1{font-family:"Noto Sans TC",sans-serif;font-weight:900;letter-spacing:.22em;text-transform:none}
+.prefs select#pLang{min-width:7.5em}
+</style>
+<header class="band">
+  <div class="band-row">
+    <div class="title"><h1 id="appTitle"></h1><small id="subTitle"></small></div>
+    <div class="prefs">
+      <label class="sr" for="pLang" id="lbLang"></label><select id="pLang"><option value="zh">繁體中文</option><option value="en">English</option></select>
+      <label class="sr" for="pSize" id="lbSize"></label><select id="pSize"></select>
+      <label class="sr" for="pFont" id="lbFont"></label><select id="pFont"></select>
+      <label class="sr" for="pBrand" id="lbBrand"></label><select id="pBrand"></select>
+      <label class="sr" for="pRegion" id="lbRegion"></label><select id="pRegion"></select>
+    </div>
+    <div class="clock"><b id="clkT">--:--</b><span id="clkD"></span></div>
+    <span class="status" id="status"></span>
+    <button class="gloss" data-action="help" id="btnGloss"></button>
+    <button class="guide-link" data-action="guide" id="btnGuide"></button>
+  </div>
+</header>
+<nav class="tabbar" role="tablist" id="tabbar"></nav>
+<main class="sheet" id="app"></main>
+<div id="layer"></div>
+
+<script>
+(function(){
+const KEY='tutor-circle-v3';
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const $=id=>document.getElementById(id);
+const nt=n=>'NT$'+Number(n).toLocaleString('en-US');
+
+/* ── language ── */
+let LANG='zh';
+const t=(zh,en)=>LANG==='en'?en:zh;
+const tx=o=>o==null?'':typeof o==='string'?o:(LANG==='en'?o.en:o.zh);
+const VAL={
+ '英文':'English','數學':'Math','國文':'Chinese','理化':'Science','程式':'Coding','鋼琴':'Piano',
+ '國小':'Elementary','國中':'Junior high','高中':'Senior high','成人':'Adult',
+ '到府':'In-home','線上':'Online',
+ '段考加強':'School exam prep','會考衝刺':'CAP exam prep','學測衝刺':'GSAT prep','打好基礎':'Build foundations','興趣培養':'Just for interest',
+ '工作需要':'For work','考取檢定':'Certification exam','出國準備':'Study-abroad prep',
+ '到府教學':'In-home lessons','線上視訊':'Video lessons','都可以':'Either is fine',
+ '每週 1 堂':'1 lesson a week','每週 2 堂':'2 lessons a week','每週 3 堂以上':'3+ lessons a week',
+ '平日下午':'Weekday afternoons','平日傍晚':'Weekday early evenings','平日晚上':'Weekday evenings','週六上午':'Saturday mornings','週六下午':'Saturday afternoons','週日上午':'Sunday mornings','週日下午':'Sunday afternoons',
+ '600 以下':'Under 600','600–900':'600–900','900–1,200':'900–1,200','1,200 以上':'1,200 and up',
+ '台北市':'Taipei','新北市':'New Taipei','桃園市':'Taoyuan','台中市':'Taichung','高雄市':'Kaohsiung',
+ '正式':'Regular','試教':'Trial'
+};
+const v=x=>{if(Array.isArray(x))return x.map(v).join(t('、',', '));if(LANG!=='en')return x;return String(x).split('、').map(p=>VAL[p]||p).join(', ')};
+
+const DAYS={zh:['一','二','三','四','五','六','日'],en:['Mon','Tue','Wed','Thu','Fri','Sat','Sun']};
+const PERIODS=[{zh:'上午',en:'Morning',time:'09:00'},{zh:'下午',en:'Afternoon',time:'14:00'},{zh:'傍晚',en:'Early evening',time:'17:00'},{zh:'晚上',en:'Evening',time:'19:30'}];
+const dayName=i=>LANG==='en'?DAYS.en[i]:'週'+DAYS.zh[i];
+const slotName=s=>{const [d,p]=s.split('-').map(Number);return `${dayName(d)} ${tx(PERIODS[p])} ${PERIODS[p].time}`};
+const SUBJECTS=['英文','數學','國文','理化','程式','鋼琴'];
+const GRADES=['國小','國中','高中','成人'];
+const CITIES=['台北市','新北市','桃園市','台中市','高雄市'];
+const COLORS=['#2D5DA6','#2E8A63','#9A4A2A','#6B4BA3','#B07A12','#3B6E8C'];
+
+const TUTORS=[
+ {id:'t1',name:{zh:'林語晴',en:'Yu-Ching Lin'},sub:'英文',grades:['國中','高中'],modes:['線上','到府'],area:'台北市',rate:850,star:4.9,n:38,edu:{zh:'台大外文系',en:'NTU, Foreign Languages'},intro:{zh:'把文法拆成題型清單，段考前用錯題本複習。',en:'Breaks grammar into question-type checklists and reviews with an error log before exams.'},avail:['0-3','2-3','5-0']},
+ {id:'t2',name:{zh:'陳柏宇',en:'Po-Yu Chen'},sub:'數學',grades:['國中','高中'],modes:['到府'],area:'新北市',rate:900,star:4.8,n:27,edu:{zh:'清大數學系',en:'NTHU, Mathematics'},intro:{zh:'先找出卡住的觀念，再用分級題組練到穩。',en:'Finds the concept you are stuck on, then drills it with leveled problem sets.'},avail:['1-3','3-3','6-1']},
+ {id:'t3',name:{zh:'張品妤',en:'Pin-Yu Chang'},sub:'國文',grades:['國小','國中'],modes:['線上'],area:'台中市',rate:650,star:4.9,n:44,edu:{zh:'師大國文系',en:'NTNU, Chinese'},intro:{zh:'作文逐句批改，附範文對照與修改說明。',en:'Line-by-line essay feedback with model essays and revision notes.'},avail:['0-2','2-2','4-2','5-1']},
+ {id:'t4',name:{zh:'王子翔',en:'Tzu-Hsiang Wang'},sub:'理化',grades:['國中'],modes:['到府'],area:'台北市',rate:800,star:4.7,n:19,edu:{zh:'成大化學系',en:'NCKU, Chemistry'},intro:{zh:'用生活實驗講觀念，再接會考題型。',en:'Explains concepts with everyday experiments, then moves on to CAP-style questions.'},avail:['1-3','4-3','6-0']},
+ {id:'t5',name:{zh:'黃郁婷',en:'Yu-Ting Huang'},sub:'鋼琴',grades:['國小','成人'],modes:['到府'],area:'台北市',rate:1000,star:5.0,n:22,edu:{zh:'北藝大音樂系',en:'TNUA, Music'},intro:{zh:'從讀譜與指法打底，可準備檢定曲目。',en:'Builds sight-reading and fingering first, and can prepare graded exam pieces.'},avail:['5-0','5-1','6-1']},
+ {id:'t6',name:{zh:'吳承恩',en:'Cheng-En Wu'},sub:'程式',grades:['高中','成人'],modes:['線上'],area:'高雄市',rate:1100,star:4.8,n:16,edu:{zh:'中山資工系',en:'NSYSU, Computer Science'},intro:{zh:'Python 與 APCS，每堂課都寫出一個小作品。',en:'Python and APCS. Every lesson ends with a small working project.'},avail:['2-3','3-3','6-2']},
+ {id:'t7',name:{zh:'蔡沛容',en:'Pei-Jung Tsai'},sub:'英文',grades:['國小'],modes:['到府'],area:'桃園市',rate:700,star:4.9,n:31,edu:{zh:'中央英文系',en:'NCU, English'},intro:{zh:'自然發音與繪本閱讀，讓孩子敢開口。',en:'Phonics and picture books so kids feel comfortable speaking up.'},avail:['0-2','2-2','5-0']},
+ {id:'t8',name:{zh:'劉冠廷',en:'Kuan-Ting Liu'},sub:'數學',grades:['高中'],modes:['線上'],area:'台北市',rate:1200,star:4.9,n:35,edu:{zh:'台大電機系',en:'NTU, Electrical Engineering'},intro:{zh:'學測數 A 衝刺，模考後逐題檢討。',en:'GSAT Math A prep with a question-by-question review after every mock exam.'},avail:['1-3','4-3','5-1','6-1']},
+ {id:'t9',name:{zh:'鄭雅文',en:'Ya-Wen Cheng'},sub:'英文',grades:['成人'],modes:['線上'],area:'新北市',rate:950,star:4.8,n:29,edu:{zh:'政大英文系',en:'NCCU, English'},intro:{zh:'商用英文與口說，模擬會議和簡報情境。',en:'Business English and speaking, practiced in mock meetings and presentations.'},avail:['0-3','3-3','5-1']},
+ {id:'t10',name:{zh:'許書豪',en:'Shu-Hao Hsu'},sub:'理化',grades:['高中'],modes:['線上'],area:'台中市',rate:1000,star:4.7,n:14,edu:{zh:'中興物理系',en:'NCHU, Physics'},intro:{zh:'物理先畫圖再列式，解題步驟固定化。',en:'Draw the diagram first, then set up the equations. Same steps every time.'},avail:['1-2','3-2','6-0']},
+ {id:'t11',name:{zh:'周芷萱',en:'Chih-Hsuan Chou'},sub:'數學',grades:['國小'],modes:['到府'],area:'高雄市',rate:600,star:4.9,n:40,edu:{zh:'高師大數學系',en:'NKNU, Mathematics'},intro:{zh:'用教具帶分數與幾何，建立數感。',en:'Uses hands-on materials for fractions and geometry to build number sense.'},avail:['0-2','1-2','3-2']},
+ {id:'t12',name:{zh:'簡宏毅',en:'Hung-Yi Chien'},sub:'國文',grades:['高中'],modes:['線上'],area:'台北市',rate:900,star:4.8,n:25,edu:{zh:'台大中文系',en:'NTU, Chinese'},intro:{zh:'學測國寫題型拆解，每週一篇限時寫作。',en:'Breaks down GSAT writing prompts, with one timed essay each week.'},avail:['2-3','4-3','6-2']}
+];
+const tutorById=id=>TUTORS.find(x=>x.id===id);
+const tname=x=>tx(x.name);
+
+const REQ_STEPS=[
+ {k:'sub',l:{zh:'科目',en:'Subject'},q:{zh:'想加強哪一科？',en:'Which subject?'},type:'one',opts:()=>SUBJECTS},
+ {k:'grade',l:{zh:'程度',en:'Level'},q:{zh:'學生目前的年級或程度？',en:'What level is the student at?'},type:'one',opts:()=>GRADES},
+ {k:'goal',l:{zh:'目標',en:'Goal'},q:{zh:'這次上課最主要的目標？',en:'What is the main goal?'},type:'one',opts:d=>d.grade==='成人'?['工作需要','考取檢定','興趣培養','出國準備']:['段考加強','會考衝刺','學測衝刺','打好基礎','興趣培養']},
+ {k:'mode',l:{zh:'方式',en:'Format'},q:{zh:'希望怎麼上課？',en:'How would you like to take lessons?'},type:'one',opts:()=>['到府教學','線上視訊','都可以']},
+ {k:'freq',l:{zh:'頻率',en:'Frequency'},q:{zh:'每週大約上幾堂？',en:'How many lessons a week?'},type:'one',opts:()=>['每週 1 堂','每週 2 堂','每週 3 堂以上']},
+ {k:'times',l:{zh:'時段',en:'Times'},q:{zh:'哪些時段可以上課？（可複選）',en:'Which times work? (Pick all that apply)'},type:'many',opts:()=>['平日下午','平日傍晚','平日晚上','週六上午','週六下午','週日上午','週日下午']},
+ {k:'budget',l:{zh:'時薪',en:'Rate'},q:{zh:'每小時預算（NT$）？',en:'Hourly budget (NT$)?'},type:'one',opts:()=>['600 以下','600–900','900–1,200','1,200 以上']},
+ {k:'name',l:{zh:'聯絡',en:'Contact'},q:{zh:'怎麼稱呼你？',en:'What should tutors call you?'},type:'contact'}
+];
+const SAYS=[
+ {zh:'看過需求，我會先用一堂課做程度診斷，再依你的目標排每週進度。',en:'I read your request. I will start with a placement lesson, then plan weekly progress around your goal.'},
+ {zh:'我可以配合你勾選的時段，試教後再決定是否繼續。',en:'I can work with the times you picked. Decide after the trial whether to continue.'},
+ {zh:'每堂課後會傳學習紀錄給家長，方便追蹤。',en:'After each lesson I send parents a short progress note.'}
+];
+
+const DEFAULT={
+ lessons:[{id:'x1',tid:'t1',slot:'0-3',kind:'正式'},{id:'x2',tid:'t8',slot:'4-3',kind:'正式'},{id:'x3',tid:'t5',slot:'5-0',kind:'試教'}],
+ leads:[
+  {id:'L1',code:'TC-10421',grade:'國中',sub:'英文',goal:'段考加強',mode:'到府教學',freq:'每週 2 堂',times:['平日晚上','週六上午'],budget:'600–900',who:{zh:'王媽媽',en:'Mrs. Wang'},area:{zh:'台北市大安區',en:"Da'an, Taipei"},when:{zh:'12 分鐘前',en:'12 min ago'},note:{zh:'孩子文法較弱，閱讀還可以',en:'Grammar is weak; reading is fine'},status:'new',offer:0},
+  {id:'L2',code:'TC-10418',grade:'高中',sub:'英文',goal:'學測衝刺',mode:'線上視訊',freq:'每週 1 堂',times:['週日下午'],budget:'900–1,200',who:{zh:'陳同學',en:'Chen (student)'},area:{zh:'線上',en:'Online'},when:{zh:'1 小時前',en:'1 hr ago'},note:{zh:'想加強翻譯與作文',en:'Wants to work on translation and essays'},status:'new',offer:0},
+  {id:'L3',code:'TC-10402',grade:'成人',sub:'英文',goal:'考取檢定',mode:'都可以',freq:'每週 2 堂',times:['平日晚上'],budget:'900–1,200',who:{zh:'李先生',en:'Mr. Lee'},area:{zh:'台北市信義區',en:'Xinyi, Taipei'},when:{zh:'昨天',en:'Yesterday'},note:{zh:'多益目前約 600 分，目標 750',en:'TOEIC around 600 now, aiming for 750'},status:'applied',offer:950}
+ ],
+ courses:[
+  {id:'c1',sub:'英文',grade:'國中',mode:'到府、線上',rate:850,auto:true,on:true},
+  {id:'c2',sub:'英文',grade:'高中',mode:'線上',rate:950,auto:false,on:true},
+  {id:'c3',sub:'英文',grade:'成人',mode:'線上',rate:950,auto:false,on:false}
+ ],
+ avail:['0-3','2-3','5-0','5-1'],seq:10422,
+ prefs:{lang:'zh',size:'1',font:'std',brand:'navy',region:''}
+};
+let S;
+try{S=JSON.parse(localStorage.getItem(KEY)||'null')}catch(e){S=null}
+if(!S||!S.lessons)S=JSON.parse(JSON.stringify(DEFAULT));
+if(!S.prefs.lang)S.prefs.lang='zh';
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}};
+
+const blankF=()=>({sub:'',grade:'',mode:'',max:'',online:true,sort:'star'});
+const UI={tab:'find',f:blankF(),fd:blankF(),view:'card',schedView:'week',schedShow:'all',leadShow:'all',
+ r:{step:0,d:{times:[]},err:'',done:false,code:'',matches:null},sel:null,dialog:null,book:null};
+const TABS=[
+ {id:'find',l:{zh:'找老師',en:'Find a Tutor'},c:'#F2B33D',ic:'<circle cx="11" cy="11" r="6"/><path d="M20 20l-4.5-4.5"/>'},
+ {id:'req',l:{zh:'發布家教需求',en:'Post a Request'},c:'#5B8DEF',ic:'<path d="M6 3h9l4 4v14H6z"/><path d="M9 12h7M9 16h5"/>'},
+ {id:'sched',l:{zh:'我的課表',en:'My Schedule'},c:'#3AA864',ic:'<rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4"/>'},
+ {id:'leads',l:{zh:'學生案件',en:'Student Requests'},c:'#E0703A',ic:'<path d="M4 6h16v12H4z"/><path d="M4 7l8 6 8-6"/>',role:true},
+ {id:'courses',l:{zh:'開課與時段',en:'Courses & Hours'},c:'#8B6BD6',ic:'<circle cx="12" cy="12" r="8"/><path d="M12 8v4l3 2"/>',role:true}
+];
+
+/* ── header chrome ── */
+function fillSelect(id,opts,val){$(id).innerHTML=opts.map(([o,l])=>`<option value="${o}">${esc(l)}</option>`).join('');$(id).value=val}
+function applyPrefs(){
+ const p=S.prefs,r=document.documentElement;
+ LANG=p.lang==='en'?'en':'zh';
+ r.lang=LANG==='en'?'en':'zh-Hant';
+ document.title=t('家教圈','Tutor Circle');
+ r.style.fontSize=(15*Number(p.size||1))+'px';
+ r.classList.toggle('hand',p.font==='hand');
+ if(p.brand&&p.brand!=='navy')r.setAttribute('data-brand',p.brand);else r.removeAttribute('data-brand');
+ $('appTitle').textContent=t('家教圈','Tutor Circle');
+ $('subTitle').textContent=t('示範資料・可直接操作','Sample data · fully clickable');
+ $('pLang').value=LANG;
+ fillSelect('pSize',[['1',t('100%（標準）','100% (normal)')],['1.12','112%'],['1.25',t('125%（大）','125% (large)')]],p.size);
+ fillSelect('pFont',[['std',t('標準字體','Standard')],['hand',t('手寫字體','Handwriting')]],p.font);
+ fillSelect('pBrand',[['navy',t('海軍藍','Navy Blue')],['green',t('森林綠','Forest Green')],['wine',t('酒紅','Wine Red')],['slate',t('石墨灰','Graphite')]],p.brand);
+ fillSelect('pRegion',[['',t('全部地區','All regions')],...CITIES.map(c=>[c,v(c)])],p.region||'');
+ $('lbLang').textContent=t('語言','Language');$('lbSize').textContent=t('字級','Text size');$('lbFont').textContent=t('字體','Font');$('lbBrand').textContent=t('主題色','Theme color');$('lbRegion').textContent=t('地區','Region');
+ $('btnGloss').textContent=t('名詞說明','Glossary');$('btnGuide').textContent=t('新手使用指南','Getting started');
+ $('tabbar').setAttribute('aria-label',t('功能分頁','Sections'));
+ tick();
+}
+function tick(){
+ const now=new Date();
+ $('clkT').textContent=new Intl.DateTimeFormat('en-GB',{timeZone:'Asia/Taipei',hour:'2-digit',minute:'2-digit',hour12:false}).format(now);
+ const parts=new Intl.DateTimeFormat(LANG==='en'?'en-US':'zh-TW',{timeZone:'Asia/Taipei',year:'numeric',month:'2-digit',day:'2-digit',weekday:'short'}).formatToParts(now);
+ const g=k=>(parts.find(x=>x.type===k)||{}).value||'';
+ $('clkD').textContent=`${g('year')}/${g('month')}/${g('day')} ${g('weekday')} ${t('台北','Taipei')}`;
+}
+
+/* ── shared bits ── */
+const stars=x=>`<span class="stars">★ ${x.toFixed(1)}</span>`;
+const ava=x=>`<span class="ava" style="background:${COLORS[TUTORS.indexOf(x)%COLORS.length]}">${esc(tname(x)[0])}</span>`;
+const sel=(id,label,opts,val,extra='')=>`<label class="fld" for="${id}">${label}<select id="${id}" ${extra}>${opts.map(o=>{const [ov,ol]=Array.isArray(o)?o:[o,v(o)];return `<option value="${esc(ov)}"${String(val)===String(ov)?' selected':''}>${esc(ol)}</option>`}).join('')}</select></label>`;
+const seg=(action,cur,opts)=>`<div class="seg" role="group">${opts.map(([ov,ol])=>`<button aria-pressed="${cur===ov}" data-action="${action}" data-v="${ov}">${ol}</button>`).join('')}</div>`;
+const perHr=t('NT$／小時','NT$ / hr');
+const leadTitle=l=>LANG==='en'?`${v(l.grade)} ${v(l.sub)} · ${v(l.goal)}`:`${l.grade}${l.sub}・${l.goal}`;
+
+/* ── Find a tutor ── */
+function filteredTutors(){
+ const f=UI.f,region=S.prefs.region,max=Number(f.max)||Infinity;
+ const list=TUTORS.filter(x=>(!f.sub||x.sub===f.sub)&&(!f.grade||x.grades.includes(f.grade))&&(!f.mode||x.modes.includes(f.mode))&&x.rate<=max
+  &&(!region||x.area===region||(f.online&&x.modes.includes('線上'))));
+ list.sort((a,b)=>f.sort==='star'?b.star-a.star||b.n-a.n:f.sort==='low'?a.rate-b.rate:b.n-a.n);
+ return list;
+}
+function viewFind(){
+ const d=UI.fd,list=filteredTutors(),region=S.prefs.region;
+ const cond=[UI.f.sub&&v(UI.f.sub),UI.f.grade&&v(UI.f.grade),UI.f.mode&&v(UI.f.mode),UI.f.max&&(t('時薪 ≤ ','Rate ≤ ')+nt(UI.f.max))].filter(Boolean);
+ return `<section class="frame tool" aria-label="${t('搜尋條件','Search filters')}">
+  ${sel('fSub',t('科目','Subject'),[['',t('全部科目','All subjects')],...SUBJECTS],d.sub,'data-fd="sub"')}
+  ${sel('fGrade',t('年級／程度','Level'),[['',t('不限','Any')],...GRADES],d.grade,'data-fd="grade"')}
+  ${sel('fMode',t('上課方式','Format'),[['',t('不限','Any')],'到府','線上'],d.mode,'data-fd="mode"')}
+  ${sel('fMax',t('時薪上限','Max rate'),[['',t('不限','Any')],['700',t('NT$700 以下','Up to NT$700')],['900',t('NT$900 以下','Up to NT$900')],['1200',t('NT$1,200 以下','Up to NT$1,200')]],d.max,'data-fd="max"')}
+  ${sel('fSort',t('排序','Sort by'),[['star',t('評價最高','Highest rated')],['low',t('時薪由低到高','Lowest rate')],['n',t('評價數最多','Most reviews')]],d.sort,'data-fd="sort"')}
+  <label class="check" for="fOnline"><input type="checkbox" id="fOnline" ${d.online?'checked':''}>${t('其他地區的線上老師也列出','Include online tutors from other regions')}</label>
+  <button class="btn btn-gold" data-action="search">${t('搜尋老師','Search Tutors')}</button>
+ </section>
+ <div class="hint"><p>${t(`選好條件後按「搜尋老師」。地區跟著右上角的地區選單，目前是「${esc(v(region)||'全部地區')}」。`,`Pick your filters and click "Search Tutors". Region follows the region menu at the top right, currently "${esc(region?v(region):'All regions')}".`)}</p><p>${t('想讓老師主動來應徵，可以改到「發布家教需求」填一張需求單。老師資料為示範用的範例。','To have tutors come to you, post a request on the "Post a Request" tab. Tutor profiles are sample data.')}</p></div>
+ <div class="label">${t('老師列表','Tutors')}　<span class="muted" style="font-weight:500;font-size:.88rem">${t(`找到 ${list.length} 位`,`${list.length} found`)}${cond.length?' · '+esc(cond.join(' · ')):''}</span></div>
+ <section class="frame">
+  <div class="frame-top">${seg('view',UI.view,[['card',t('卡片','Cards')],['table',t('表格','Table')]])}</div>
+  ${!list.length?`<div class="empty">${t('沒有符合條件的老師。放寬時薪上限，或改發一張家教需求單。','No tutors match. Raise the max rate, or post a request instead.')}<div style="margin-top:10px"><button class="btn btn-gold btn-sm" data-action="tab" data-tab="req">${t('發布家教需求','Post a Request')}</button></div></div>`:
+  UI.view==='card'?`<div class="tutors">${list.map(x=>`<article class="tutor">
+   <div class="t-head">${ava(x)}<div class="n"><b>${esc(tname(x))}</b><span>${esc(tx(x.edu))} · ${esc(v(x.area))}</span></div><div class="rate"><b>${x.rate.toLocaleString('en-US')}</b><span>${perHr}</span></div></div>
+   <p class="t-intro">${esc(tx(x.intro))}</p>
+   <div class="t-meta"><span class="pill info">${esc(v(x.sub))}</span>${x.grades.map(g=>`<span class="pill mute">${v(g)}</span>`).join('')}${x.modes.map(m=>`<span class="pill ok">${v(m)}</span>`).join('')}</div>
+   <div class="t-foot"><span>${stars(x.star)} <span class="muted" style="font-size:.78rem">${t(`${x.n} 則評價`,`${x.n} reviews`)}</span></span><button class="btn btn-gold btn-sm" data-action="book" data-tid="${x.id}">${t('預約試教','Book a Trial')}</button></div>
+  </article>`).join('')}</div>`:
+  `<div class="table-wrap"><table><thead><tr><th>${t('老師','Tutor')}</th><th>${t('科目','Subject')}</th><th>${t('年級','Level')}</th><th>${t('方式','Format')}</th><th>${t('地區','Region')}</th><th>${t('時薪','Rate')}</th><th>${t('評價','Rating')}</th><th></th></tr></thead><tbody>${list.map(x=>`<tr>
+   <td><b>${esc(tname(x))}</b><br><span class="muted" style="font-size:.78rem">${esc(tx(x.edu))}</span></td><td>${v(x.sub)}</td><td>${v(x.grades)}</td><td>${v(x.modes)}</td><td>${v(x.area)}</td><td class="num">${nt(x.rate)}</td><td>${stars(x.star)}<span class="muted" style="font-size:.78rem"> (${x.n})</span></td>
+   <td><button class="btn btn-gold btn-sm" data-action="book" data-tid="${x.id}">${t('預約試教','Book a Trial')}</button></td></tr>`).join('')}</tbody></table></div>`}
+ </section>`;
+}
+
+/* ── Post a request ── */
+function paperHTML(){
+ const d=UI.r.d,row=(k,val)=>`<dt>${k}</dt><dd class="${val?'':'e'}">${val?esc(val):'—'}</dd>`;
+ const area=S.prefs.region?v(S.prefs.region):(d.mode==='線上視訊'?t('線上','Online'):'');
+ return `<div class="paper-head"><span>${t('家教需求單','Tutoring request')}</span><span>${esc(UI.r.code||'TC-'+S.seq)}</span></div>
+  <dl>${row(t('科目','Subject'),d.sub&&v(d.sub))}${row(t('程度','Level'),d.grade&&v(d.grade))}${row(t('目標','Goal'),d.goal&&v(d.goal))}${row(t('方式','Format'),d.mode&&v(d.mode))}${row(t('頻率','Frequency'),d.freq&&v(d.freq))}${row(t('時段','Times'),(d.times||[]).length?v(d.times):'')}${row(t('時薪','Rate'),d.budget&&'NT$ '+v(d.budget))}${row(t('地區','Region'),area)}${row(t('聯絡人','Contact'),d.name)}${d.note?row(t('備註','Notes'),d.note):''}</dl>`;
+}
+function progressPanel(){
+ const R=UI.r,done=R.done,pct=done?100:Math.round(R.step/REQ_STEPS.length*100);
+ return `<section class="frame">
+  <div class="pg-head">${t('需求單進度','Request progress')}<span>${pct}%</span></div>
+  <div class="bar"><i class="${done?'full':''}" style="width:${Math.max(pct,3)}%"></i></div>
+  <div class="checks">${REQ_STEPS.map((s,i)=>`<span class="${done||i<R.step?'done':i===R.step?'now':''}">${tx(s.l)}</span>`).join('')}</div>
+  <div class="sub-note">${done?t(`需求單 ${esc(R.code)} 已送出，符合條件的老師已收到通知。`,`Request ${esc(R.code)} is posted. Matching tutors have been notified.`):t(`正在填寫：${tx(REQ_STEPS[R.step].l)}`,`Now filling in: ${tx(REQ_STEPS[R.step].l)}`)}</div>
+ </section>`;
+}
+function viewReq(){
+ const R=UI.r;
+ const intro=`<div class="hint"><p>${t('一題一題回答，右邊的需求單會即時更新。送出後，符合科目、程度與時段的老師會收到通知並主動應徵。','Answer one question at a time; the request on the right updates as you go. Once posted, tutors who match the subject, level and times are notified and can apply.')}</p><p>${t('上課地區沿用右上角的地區選單；選「線上視訊」可以不限地區。','Region follows the menu at the top right. Choose "Video lessons" to accept tutors from any region.')}</p></div>`;
+ if(R.done){
+  return progressPanel()+intro+`<div class="label">${t('老師應徵','Tutor applications')}</div>
+  <div class="req"><section class="frame">
+   <div class="frame-top"><h2>${t('3 位老師已應徵','3 tutors applied')}</h2><span class="pill ok">${t('示範內容','Sample')}</span></div>
+   <div style="display:flex;flex-direction:column;gap:10px">${R.matches.map(m=>{const x=tutorById(m.tid);return `<div class="match">
+    <div class="t-head">${ava(x)}<div class="n"><b>${esc(tname(x))}</b><span>${esc(tx(x.edu))} · ${stars(x.star)}</span></div><div class="rate"><b>${m.rate.toLocaleString('en-US')}</b><span>${perHr}</span></div></div>
+    <p class="say">${esc(tx(SAYS[m.say]))}</p><button class="btn btn-gold btn-sm" data-action="book" data-tid="${x.id}">${t('安排試教','Schedule a Trial')}</button></div>`}).join('')}</div>
+   <div class="nav-row" style="margin-top:12px"><button class="btn btn-line" data-action="newReq">${t('再發一張需求單','Post another request')}</button><button class="btn btn-line" data-action="tab" data-tab="leads">${t('切到老師端看這張需求','See it from the tutor side')}</button></div>
+  </section><aside class="paper">${paperHTML()}</aside></div>`;
+ }
+ const st=REQ_STEPS[R.step],d=R.d;
+ let body;
+ if(st.type==='one')body=`<div class="opts" role="radiogroup" aria-label="${esc(tx(st.l))}">${st.opts(d).map(o=>`<button class="opt" role="radio" aria-checked="${d[st.k]===o}" data-action="pick" data-k="${st.k}" data-v="${esc(o)}">${esc(v(o))}</button>`).join('')}</div>`;
+ else if(st.type==='many')body=`<div class="opts" role="group" aria-label="${esc(tx(st.l))}">${st.opts(d).map(o=>`<button class="opt" aria-pressed="${(d.times||[]).includes(o)}" data-action="toggleTime" data-v="${esc(o)}">${esc(v(o))}</button>`).join('')}</div>`;
+ else body=`<div class="tool"><label class="fld" style="flex:1 1 200px" for="rName">${t('稱呼','Name')}<input type="text" id="rName" data-bind="name" value="${esc(d.name||'')}" placeholder="${t('例如：王媽媽','e.g. Mrs. Wang')}"></label>
+  ${sel('rRegion',t('上課地區','Lesson region'),[['',t('（線上不限地區）','(Online, any region)')],...CITIES],S.prefs.region||'','data-pref="region"')}
+  <label class="fld" style="flex:1 1 100%" for="rNote">${t('想讓老師知道的事','Anything tutors should know')}<textarea id="rNote" data-bind="note" placeholder="${t('例如：孩子文法較弱，希望多練習題','e.g. Grammar is weak; would like more practice questions')}">${esc(d.note||'')}</textarea></label></div>`;
+ return progressPanel()+intro+`<div class="label">${t('填寫需求','Your request')}</div>
+ <div class="req"><section class="frame">
+  <h2 class="q">${esc(tx(st.q))}</h2>${body}
+  <div class="err" role="alert">${esc(R.err?tx(R.err):'')}</div>
+  <div class="nav-row">${R.step?`<button class="btn btn-line" data-action="back">${t('上一步','Back')}</button>`:'<span></span>'}<button class="btn btn-gold" data-action="next">${R.step===REQ_STEPS.length-1?t('送出需求單','Post Request'):t('下一步','Next')}</button></div>
+ </section><aside class="paper" id="paper">${paperHTML()}</aside></div>`;
+}
+
+/* ── My schedule ── */
+function viewSched(){
+ const all=S.lessons,L=all.filter(l=>UI.schedShow==='all'||l.kind===UI.schedShow);
+ const trial=all.filter(l=>l.kind==='試教').length;
+ let inner;
+ if(UI.schedView==='week'){
+  let cells=`<div class="h">${t('時段','Time')}</div>${[0,1,2,3,4,5,6].map(i=>`<div class="h">${dayName(i)}</div>`).join('')}`;
+  PERIODS.forEach((p,pi)=>{cells+=`<div class="p"><b>${tx(p)}</b>${p.time}</div>`;
+   [0,1,2,3,4,5,6].forEach(di=>{cells+=`<div>${L.filter(l=>l.slot===di+'-'+pi).map(l=>{const x=tutorById(l.tid);return `<div class="lesson ${l.kind==='試教'?'trial':''}"><b>${esc(v(x.sub))} · ${v(l.kind)}</b><span>${esc(tname(x))}</span><button aria-label="${t('取消這堂課','Cancel this lesson')}: ${esc(slotName(l.slot))}" data-action="cancel" data-id="${l.id}">×</button></div>`}).join('')}</div>`})});
+  inner=`<div class="sched-wrap"><div class="sched">${cells}</div></div>`;
+ }else{
+  const sorted=[...L].sort((a,b)=>a.slot.localeCompare(b.slot));
+  inner=`<div class="table-wrap"><table><thead><tr><th>${t('時間','When')}</th><th>${t('科目','Subject')}</th><th>${t('老師','Tutor')}</th><th>${t('類型','Type')}</th><th>${t('上課方式','Format')}</th><th></th></tr></thead><tbody>${sorted.map(l=>{const x=tutorById(l.tid);return `<tr><td class="num">${slotName(l.slot)}</td><td>${esc(v(x.sub))}</td><td>${esc(tname(x))}</td><td><span class="pill ${l.kind==='試教'?'warn':'info'}">${v(l.kind)}</span></td><td>${v(x.modes)}</td><td><button class="btn btn-line btn-sm" data-action="cancel" data-id="${l.id}">${t('取消','Cancel')}</button></td></tr>`}).join('')}</tbody></table></div>`;
+ }
+ return `<section class="frame tool">
+  ${sel('sShow',t('顯示','Show'),[['all',t('全部課程','All lessons')],['正式',t('只看正式課','Regular only')],['試教',t('只看試教','Trials only')]],UI.schedShow,'data-ui="schedShow"')}
+  <button class="btn btn-gold" data-action="tab" data-tab="find">${t('去找老師預約','Find a Tutor')}</button>
+ </section>
+ <div class="hint"><p>${t(`本週共 ${all.length} 堂：正式課 ${all.length-trial} 堂、試教 ${trial} 堂。試教結束後確認僱用，就會轉成每週固定的正式課。`,`${all.length} lessons this week: ${all.length-trial} regular, ${trial} trial. Once you confirm a tutor after the trial, it becomes a weekly regular lesson.`)}</p><p>${t('點課程右上角的 × 可以取消。','Click × on a lesson to cancel it.')}</p></div>
+ <div class="label">${t('本週課表','This week')}</div>
+ <section class="frame"><div class="frame-top">${seg('schedView',UI.schedView,[['week',t('週課表','Week')],['list',t('清單','List')]])}</div>
+  ${L.length?inner:`<div class="empty">${t('目前沒有課程。到「找老師」預約一堂試教。','No lessons yet. Book a trial on the "Find a Tutor" tab.')}</div>`}</section>`;
+}
+
+/* ── Student requests (tutor) ── */
+function viewLeads(){
+ const leads=S.leads.filter(l=>UI.leadShow==='all'||l.status===UI.leadShow);
+ if(!UI.sel||!leads.find(l=>l.id===UI.sel))UI.sel=leads[0]&&leads[0].id;
+ const L=leads.find(l=>l.id===UI.sel);
+ const pill=l=>l.status==='new'?`<span class="pill info">${t('新案件','New')}</span>`:l.status==='applied'?`<span class="pill warn">${t('已應徵','Applied')}</span>`:`<span class="pill mute">${t('已略過','Skipped')}</span>`;
+ const n=k=>S.leads.filter(l=>l.status===k).length;
+ const me=TUTORS[0];
+ return `<section class="frame tool">
+  ${sel('lShow',t('案件狀態','Status'),[['all',t('全部案件','All requests')],['new',t('新案件','New')],['applied',t('已應徵','Applied')],['skipped',t('已略過','Skipped')]],UI.leadShow,'data-ui="leadShow"')}
+  <button class="btn btn-gold" data-action="tab" data-tab="courses">${t('開課與時段設定','Courses & Hours')}</button>
+ </section>
+ <div class="hint"><p>${t(`示範帳號：${tname(me)} 老師（英文）。系統依你的開課項目、程度與可上課時段配對需求單。`,`Sample account: ${tname(me)} (English tutor). Requests are matched to your courses, levels and open hours.`)}</p><p>${t('在「發布家教需求」送出的需求單，會以金色標籤出現在這裡。','Requests you post on the "Post a Request" tab show up here with a gold tag.')}</p></div>
+ <section class="frame">
+  <div class="pg-head">${t('接案概況','Overview')}<span>${t(`${S.leads.length} 張需求單`,`${S.leads.length} requests`)}</span></div>
+  <div class="kpis">
+   <div class="kpi"><span>${t('新案件','New')}</span><b>${n('new')}</b></div>
+   <div class="kpi"><span>${t('已應徵','Applied')}</span><b>${n('applied')}</b></div>
+   <div class="kpi"><span>${t('上架課程','Active courses')}</span><b>${S.courses.filter(c=>c.on).length}</b></div>
+   <div class="kpi"><span>${t('每週可上課時段','Open hours per week')}</span><b>${S.avail.length}</b></div>
+  </div>
+ </section>
+ <div class="label">${t('案件列表','Requests')}</div>
+ <section class="frame">${!L?`<div class="empty">${t('這個狀態目前沒有案件。','No requests with this status.')}</div>`:`<div class="split">
+  <div class="leadlist">${leads.map(l=>`<button class="lead" data-action="selLead" data-id="${l.id}" aria-current="${l.id===UI.sel}">${l.mine?`<span class="mine">${t('你剛發的需求單','Your new request')}</span>`:''}<span class="t"><b>${esc(leadTitle(l))}</b>${pill(l)}</span><span class="m">${esc(tx(l.who))} · ${esc(tx(l.area))} · ${esc(tx(l.when))}</span><span class="m">${t('時薪預算','Budget')} NT$ ${esc(v(l.budget))}</span></button>`).join('')}</div>
+  <div class="paper" style="background:var(--panel)">
+   <div class="paper-head"><span>${t('家教需求單','Tutoring request')} ${esc(L.code)}</span><span>${esc(tx(L.when))}</span></div>
+   <h2 style="font-size:1.25rem">${esc(leadTitle(L))}</h2>
+   <p class="muted" style="margin:2px 0 0;font-size:.86rem">${esc(tx(L.who))} · ${esc(tx(L.area))} · ${t('時薪預算','Budget')} NT$ ${esc(v(L.budget))}</p>
+   <div class="answers">${[[t('程度','Level'),v(L.grade)],[t('目標','Goal'),v(L.goal)],[t('方式','Format'),v(L.mode)],[t('頻率','Frequency'),v(L.freq)],[t('時段','Times'),v(L.times)],[t('備註','Notes'),tx(L.note)||t('無','None')]].map(([q,a])=>`<div><span>${q}</span><b>${esc(a)}</b></div>`).join('')}</div>
+   ${L.status==='applied'?`<div class="notice warn"><b>${t(`已應徵，報價 ${nt(L.offer)}／時`,`Applied at ${nt(L.offer)} / hr`)}</b><span>${t('家長或學生回覆後，可以直接安排試教時間。','Once the family replies, you can schedule the trial directly.')}</span></div>`:
+    L.status==='skipped'?`<div class="notice mute"><b>${t('已略過這個案件','You skipped this request')}</b><span>${t('不會再通知你這張需求單的更新。','You will not get further updates about it.')}</span></div>`:
+   `<form id="applyForm" style="display:flex;flex-direction:column;gap:10px;border-top:1px dashed var(--line);padding-top:12px">
+    <div class="tool"><label class="fld" style="flex:1 1 140px" for="aRate">${t('時薪（NT$）','Rate (NT$ / hr)')}<input type="text" id="aRate" inputmode="numeric" value="850" required></label>
+    ${sel('aSlot',t('可試教時段','Trial slot'),S.avail.length?S.avail.map(s=>[s,slotName(s)]):[['',t('尚未設定時段','No open hours set')]],'')}</div>
+    <label class="fld" for="aMsg">${t('給家長或學生的話','Message to the family')}<textarea id="aMsg">${t('您好，我會先做一次程度診斷，再依段考範圍安排每週進度。','Hello! I will start with a placement lesson, then plan weekly progress around the exam schedule.')}</textarea></label>
+    <div class="nav-row"><button type="button" class="btn btn-line" data-action="skip">${t('略過此案','Skip')}</button><button type="submit" class="btn btn-gold">${t('送出應徵','Send Application')}</button></div>
+   </form>`}
+  </div></div>`}
+ </section>`;
+}
+
+/* ── Courses & hours (tutor) ── */
+function viewCourses(){
+ let grid=`<div></div>${[0,1,2,3,4,5,6].map(i=>`<div class="h">${dayName(i)}</div>`).join('')}`;
+ PERIODS.forEach((p,pi)=>{grid+=`<div class="p">${tx(p)} ${p.time}</div>`+[0,1,2,3,4,5,6].map(di=>{const k=di+'-'+pi,on=S.avail.includes(k);return `<button class="slot" aria-pressed="${on}" aria-label="${esc(slotName(k))}" data-action="slot" data-k="${k}">${on?t('可上課','Open'):'—'}</button>`}).join('')});
+ return `<form class="frame tool" id="courseForm" aria-label="${t('新增課程','Add a course')}">
+  ${sel('cSub',t('科目','Subject'),SUBJECTS,'英文')}
+  ${sel('cGrade',t('程度','Level'),GRADES,'國中')}
+  ${sel('cMode',t('上課方式','Format'),['到府、線上','到府','線上'],'到府、線上')}
+  <label class="fld" for="cRate">${t('時薪（NT$）','Rate (NT$ / hr)')}<input type="text" id="cRate" inputmode="numeric" value="900" style="width:9em"></label>
+  <button class="btn btn-gold" type="submit">${t('新增課程','Add Course')}</button>
+ </form>
+ <div class="hint"><p>${t('選好科目、程度、上課方式和時薪後按「新增課程」，課程會立即上架。','Choose a subject, level, format and rate, then click "Add Course". It goes live right away.')}</p><p>${t('開啟「自動應徵」後，符合條件的需求單會自動送出你的應徵與時薪。每週可上課時段決定學生能預約的試教時間。','With auto-apply on, matching requests get your application and rate automatically. Your open hours decide which trial times students can book.')}</p></div>
+ <div class="label">${t('開課項目','Courses')}</div>
+ <section class="frame"><div class="table-wrap"><table>
+  <thead><tr><th>${t('科目','Subject')}</th><th>${t('程度','Level')}</th><th>${t('上課方式','Format')}</th><th>${t('時薪','Rate')}</th><th>${t('自動應徵','Auto-apply')}</th><th>${t('狀態','Status')}</th><th></th></tr></thead>
+  <tbody>${S.courses.map(c=>`<tr><td><b>${esc(v(c.sub))}</b></td><td>${esc(v(c.grade))}</td><td>${esc(v(c.mode))}</td><td class="num">${nt(c.rate)}</td>
+   <td><button class="switch" role="switch" aria-checked="${c.auto}" aria-label="${t('自動應徵','Auto-apply')}: ${esc(v(c.sub)+' '+v(c.grade))}" data-action="auto" data-id="${c.id}"><span></span></button></td>
+   <td><span class="pill ${c.on?'ok':'mute'}">${c.on?t('上架中','Active'):t('已暫停','Paused')}</span></td>
+   <td><button class="btn btn-line btn-sm" data-action="onoff" data-id="${c.id}">${c.on?t('暫停','Pause'):t('重新上架','Reactivate')}</button></td></tr>`).join('')}</tbody></table></div></section>
+ <div class="label">${t('每週可上課時段','Open hours each week')}　<span class="muted" style="font-weight:500;font-size:.88rem">${t(`已選 ${S.avail.length} 個 · 點一下切換`,`${S.avail.length} selected · click to toggle`)}</span></div>
+ <section class="frame"><div class="avail-wrap"><div class="avail">${grid}</div></div></section>`;
+}
+
+/* ── dialogs ── */
+function dialogHTML(){
+ const shell=(id,title,body)=>`<div class="overlay"><div class="dialog" role="dialog" aria-modal="true" aria-labelledby="${id}"><div class="dh"><h2 id="${id}">${title}</h2><button data-action="close" aria-label="${t('關閉','Close')}">×</button></div><div class="db">${body}</div></div></div>`;
+ if(UI.dialog==='book'){
+  const x=tutorById(UI.book.tid),taken=new Set(S.lessons.map(l=>l.slot));
+  return shell('dB',t(`預約試教 · ${esc(tname(x))} 老師`,`Book a trial with ${esc(tname(x))}`),`<div class="t-head">${ava(x)}<div class="n"><b>${esc(v(x.sub))} · ${v(x.grades)}</b><span>${v(x.modes)} · ${nt(x.rate)} ${t('／小時','/ hr')}</span></div></div>
+   <span class="fld">${t('選一個試教時段','Pick a trial time')}</span>
+   <div class="slots" role="radiogroup" aria-label="${t('試教時段','Trial times')}">${x.avail.map(s=>{const busy=taken.has(s);return `<button class="opt" role="radio" aria-checked="${UI.book.slot===s}" ${busy?'disabled style="opacity:.5;cursor:not-allowed"':''} data-action="pickSlot" data-s="${s}">${slotName(s)}${busy?`<br><small>${t('你這時段已有課','You already have a lesson')}</small>`:''}</button>`}).join('')}</div>
+   <div class="err" role="alert">${UI.book.err?t('請先選一個時段。','Pick a time first.'):''}</div>
+   <div class="nav-row"><button class="btn btn-line" data-action="close">${t('取消','Cancel')}</button><button class="btn btn-gold" data-action="confirmBook">${t('確認預約','Confirm Booking')}</button></div>`);
+ }
+ if(UI.dialog==='help')return shell('dH',t('名詞說明','Glossary'),`<dl class="glossary">${[
+  [t('家教需求單','Tutoring request'),t('家長或學生填寫的科目、程度、時段與預算。送出後會通知符合條件的老師。','The subject, level, times and budget a family fills in. Matching tutors are notified once it is posted.')],
+  [t('應徵','Application'),t('老師針對需求單提出時薪、可試教時段與教學方式。','A tutor\'s reply to a request, with their rate, a trial time and how they would teach.')],
+  [t('試教','Trial lesson'),t('正式上課前的第一堂課，雙方確認合適後再轉成每週固定課。','The first lesson before committing. If it works for both sides, it becomes a weekly regular lesson.')],
+  [t('自動應徵','Auto-apply'),t('老師開啟後，系統會替符合條件的需求單自動送出應徵。','When a tutor turns it on, applications go out automatically for matching requests.')],
+  [t('可上課時段','Open hours'),t('老師每週開放的時段，學生只能從這些時段預約試教。','The weekly times a tutor makes available. Students can only book trials in these times.')]
+ ].map(([a,b])=>`<dt>${a}</dt><dd>${b}</dd>`).join('')}</dl><div class="nav-row"><span></span><button class="btn btn-gold" data-action="close">${t('知道了','Got it')}</button></div>`);
+ if(UI.dialog==='guide')return shell('dG',t('新手使用指南','Getting started'),`<b>${t('家長／學生','Parents and students')}</b><ol class="guide">
+  <li>${t('在「找老師」設定條件，按「搜尋老師」。','On "Find a Tutor", set your filters and click "Search Tutors".')}</li>
+  <li>${t('挑一位老師按「預約試教」，選時段後確認。','Click "Book a Trial" on a tutor, pick a time and confirm.')}</li>
+  <li>${t('也可以到「發布家教需求」填需求單，讓老師主動應徵。','Or post a request so tutors can apply to you.')}</li>
+  <li>${t('預約好的課會出現在「我的課表」。','Booked lessons appear on "My Schedule".')}</li></ol>
+  <b>${t('老師','Tutors')}</b><ol class="guide">
+  <li>${t('在「開課與時段」新增課程，勾選每週可上課時段。','On "Courses & Hours", add your courses and mark your open hours.')}</li>
+  <li>${t('到「學生案件」查看需求單，填時薪後送出應徵。','On "Student Requests", review requests and send an application with your rate.')}</li></ol>
+  <div class="nav-row"><span></span><button class="btn btn-gold" data-action="close">${t('開始使用','Start')}</button></div>`);
+ return '';
+}
+
+let toastT;
+function toast(m){let el=document.querySelector('.toast');if(!el){el=document.createElement('div');el.className='toast';el.setAttribute('role','status');document.body.appendChild(el)}el.textContent=m;el.hidden=false;clearTimeout(toastT);toastT=setTimeout(()=>el.hidden=true,2600)}
+
+function renderTabs(){
+ const nNew=S.leads.filter(l=>l.status==='new').length;
+ $('tabbar').innerHTML=TABS.map(x=>`<button class="tab" role="tab" aria-selected="${UI.tab===x.id}" data-action="tab" data-tab="${x.id}"><span class="ic" style="background:${x.c}"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${x.ic}</svg></span>${x.role?`<span class="role">${t('老師','Tutor')}</span>`:''}${tx(x.l)}${x.id==='leads'&&nNew?`<span class="cnt">${nNew}</span>`:''}${x.id==='sched'?`<span class="cnt">${S.lessons.length}</span>`:''}</button>`).join('');
+ $('status').innerHTML=`<i></i>${t(`就緒 · ${TUTORS.length} 位示範老師`,`Ready · ${TUTORS.length} sample tutors`)}`;
+}
+function render(){
+ renderTabs();
+ $('app').innerHTML={find:viewFind,req:viewReq,sched:viewSched,leads:viewLeads,courses:viewCourses}[UI.tab]();
+ $('layer').innerHTML=dialogHTML();
+ const first=$('layer').querySelector('.dialog .db button:not([disabled])');
+ if(first&&!$('layer').contains(document.activeElement))first.focus();
+}
+
+/* ── actions ── */
+function submitReq(){
+ const R=UI.r,d=R.d;
+ R.code='TC-'+S.seq;S.seq++;
+ const reg=S.prefs.region;
+ S.leads.unshift({id:'L'+Date.now(),code:R.code,grade:d.grade,sub:d.sub,goal:d.goal,mode:d.mode,freq:d.freq,times:[...d.times],budget:d.budget,
+  who:{zh:d.name.trim(),en:d.name.trim()},area:reg?{zh:reg,en:VAL[reg]}:{zh:'線上',en:'Online'},when:{zh:'剛剛',en:'Just now'},note:{zh:d.note||'',en:d.note||''},status:'new',offer:0,mine:true});
+ let pool=TUTORS.filter(x=>x.sub===d.sub&&x.grades.includes(d.grade));
+ if(pool.length<3)pool=pool.concat(TUTORS.filter(x=>x.sub===d.sub&&!pool.includes(x)));
+ if(pool.length<3)pool=pool.concat(TUTORS.filter(x=>!pool.includes(x)));
+ const cap={'600 以下':600,'600–900':900,'900–1,200':1200,'1,200 以上':1500}[d.budget]||1200;
+ R.matches=pool.slice(0,3).map((x,i)=>({tid:x.id,rate:Math.min(x.rate,cap),say:i}));
+ R.done=true;save();render();window.scrollTo(0,0);toast(t('需求單已送出','Request posted'));
+}
+const A={
+ tab(b){UI.tab=b.dataset.tab;UI.dialog=null;render();window.scrollTo(0,0)},
+ help(){UI.dialog='help';render()},
+ guide(){UI.dialog='guide';render()},
+ close(){UI.dialog=null;render()},
+ search(){UI.f={...UI.fd};render();toast(t(`找到 ${filteredTutors().length} 位老師`,`${filteredTutors().length} tutors found`))},
+ view(b){UI.view=b.dataset.v;render()},
+ schedView(b){UI.schedView=b.dataset.v;render()},
+ book(b){UI.book={tid:b.dataset.tid,slot:null,err:false};UI.dialog='book';render()},
+ pickSlot(b){UI.book.slot=b.dataset.s;UI.book.err=false;render()},
+ confirmBook(){
+  const B=UI.book;if(!B.slot){B.err=true;return render()}
+  const x=tutorById(B.tid);
+  S.lessons.push({id:'x'+Date.now(),tid:x.id,slot:B.slot,kind:'試教'});
+  UI.dialog=null;save();render();toast(t(`已預約 ${tname(x)} 老師試教：${slotName(B.slot)}`,`Trial booked with ${tname(x)}: ${slotName(B.slot)}`));
+ },
+ cancel(b){const l=S.lessons.find(x=>x.id===b.dataset.id);S.lessons=S.lessons.filter(x=>x.id!==b.dataset.id);save();render();toast(t('已取消 ','Cancelled ')+(l?slotName(l.slot):''))},
+ pick(b){const d=UI.r.d;if(b.dataset.k==='grade'&&d.grade!==b.dataset.v)delete d.goal;d[b.dataset.k]=b.dataset.v;UI.r.err='';render()},
+ toggleTime(b){const a=UI.r.d.times,val=b.dataset.v,i=a.indexOf(val);i<0?a.push(val):a.splice(i,1);UI.r.err='';render()},
+ next(){
+  const R=UI.r,st=REQ_STEPS[R.step],d=R.d;
+  if(st.type==='contact'){if(!(d.name||'').trim()){R.err={zh:'請填寫稱呼，老師才知道怎麼稱呼你。',en:'Enter a name so tutors know what to call you.'};return render()}return submitReq()}
+  if(st.type==='many'?!d.times.length:!d[st.k]){R.err=st.type==='many'?{zh:'請至少選一個時段。',en:'Pick at least one time.'}:{zh:'請先選一個選項。',en:'Pick an option first.'};return render()}
+  R.err='';R.step++;render();
+ },
+ back(){UI.r.err='';UI.r.step=Math.max(0,UI.r.step-1);render()},
+ newReq(){UI.r={step:0,d:{times:[]},err:'',done:false,code:'',matches:null};render()},
+ selLead(b){UI.sel=b.dataset.id;render()},
+ skip(){const L=S.leads.find(l=>l.id===UI.sel);L.status='skipped';save();render();toast(t('已略過','Skipped'))},
+ auto(b){const c=S.courses.find(x=>x.id===b.dataset.id);c.auto=!c.auto;save();render();toast(c.auto?t('已開啟自動應徵','Auto-apply on'):t('已關閉自動應徵','Auto-apply off'))},
+ onoff(b){const c=S.courses.find(x=>x.id===b.dataset.id);c.on=!c.on;save();render();toast(c.on?t('已重新上架','Course reactivated'):t('已暫停這門課','Course paused'))},
+ slot(b){const k=b.dataset.k,i=S.avail.indexOf(k);i<0?S.avail.push(k):S.avail.splice(i,1);save();render()}
+};
+
+document.addEventListener('click',e=>{
+ const b=e.target.closest('[data-action]');
+ if(b&&!b.disabled){const fn=A[b.dataset.action];if(fn){e.preventDefault();fn(b)}return}
+ if(e.target.classList&&e.target.classList.contains('overlay')){UI.dialog=null;render()}
+});
+document.addEventListener('input',e=>{
+ const el=e.target;
+ if(el.dataset&&el.dataset.bind){UI.r.d[el.dataset.bind]=el.value;const p=$('paper');if(p)p.innerHTML=paperHTML()}
+});
+document.addEventListener('change',e=>{
+ const el=e.target,ds=el.dataset||{};
+ if(ds.fd){UI.fd[ds.fd]=el.value;return}
+ if(el.id==='fOnline'){UI.fd.online=el.checked;return}
+ if(ds.ui){UI[ds.ui]=el.value;render();return}
+ if(ds.pref){S.prefs.region=el.value;applyPrefs();save();const p=$('paper');if(p)p.innerHTML=paperHTML();return}
+ const map={pLang:'lang',pSize:'size',pFont:'font',pBrand:'brand',pRegion:'region'};
+ if(map[el.id]){S.prefs[map[el.id]]=el.value;applyPrefs();save();if(el.id==='pRegion'||el.id==='pLang')render()}
+});
+document.addEventListener('submit',e=>{
+ e.preventDefault();const f=e.target;
+ if(f.id==='applyForm'){
+  const r=$('aRate').value.replace(/[^\d]/g,'');if(!r){$('aRate').focus();return}
+  const L=S.leads.find(l=>l.id===UI.sel);L.status='applied';L.offer=Number(r);save();render();toast(t('已送出應徵','Application sent'));
+ }else if(f.id==='courseForm'){
+  const r=$('cRate').value.replace(/[^\d]/g,'');if(!r){$('cRate').focus();return}
+  S.courses.unshift({id:'c'+Date.now(),sub:$('cSub').value,grade:$('cGrade').value,mode:$('cMode').value,rate:Number(r),auto:false,on:true});
+  save();render();toast(t('已上架新課程','Course added'));
+ }
+});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&UI.dialog){UI.dialog=null;render()}});
+
+const h=(location.hash||'').slice(1);if(TABS.some(x=>x.id===h))UI.tab=h;
+applyPrefs();setInterval(tick,15000);render();
+})();
+</script>
+
+</body>
+</html>
